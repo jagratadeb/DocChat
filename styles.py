@@ -29,7 +29,6 @@ BASE_CSS = """
         color: #e7e9ee;
     }
 
-    /* Top navigation (st.navigation, position="top") */
     div[data-testid="stTabs"] button,
     div[role="tablist"] button {
         font-weight: 500;
@@ -195,7 +194,6 @@ BASE_CSS = """
     th { color: #8b93a3; font-weight: 600; }
     td { color: #c7cbd4; }
 
-    /* Responsive tweaks */
     @media (max-width: 640px) {
         .hero { padding: 1.2rem 0 1rem 0; }
         .hero h1 { font-size: 1.5rem; }

@@ -40,14 +40,19 @@ from langchain_core.messages import HumanMessage
 # ---------------------------------------------------------------------------
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
+
+# Chunk size and overlap are intentionally generous: a heading (e.g. "SUMMARY")
+# and the paragraph that follows it should end up in the same chunk whenever
+# possible, so a semantic match on the heading also surfaces the content.
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 250
+
 GROQ_MODEL = "openai/gpt-oss-120b"
 MAX_FILES = 5
 
 # How many chunks to pull from EACH source document per question.
 # Total context sent to the LLM is capped at MAX_FILES * CHUNKS_PER_SOURCE
-# (5 * 2 = 10 chunks worst case), regardless of how many files are active.
+# (5 * 3 = 15 chunks worst case), regardless of how many files are active.
 # This keeps the prompt - and therefore the Groq API token cost - bounded
 # and predictable, while still guaranteeing every document is represented.
 CHUNKS_PER_SOURCE = 3

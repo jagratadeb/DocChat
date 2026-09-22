@@ -5,7 +5,7 @@ Answers are grounded in retrieved excerpts using Retrieval-Augmented Generation 
 with sources shown for every response.
 
 Built entirely with free tools: LangChain, HuggingFace embeddings, FAISS, Groq, and
-Streamlit. See the in-app **Architecture** page for a full technical explanation,
+Streamlit. See the in-app Architecture page for a full technical explanation,
 including how retrieval is optimized for accuracy across multiple documents without
 increasing API cost.
 
@@ -13,7 +13,7 @@ increasing API cost.
 
 1. Each uploaded document is split into overlapping chunks, tagged with its filename.
 2. Chunks are embedded locally and for free using a HuggingFace sentence-transformer model.
-3. A **separate FAISS index is built per document** (not one merged index) - this is what
+3. A separate FAISS index is built per document (not one merged index) - this is what
    prevents one document's content from crowding out another's in a multi-file session.
 4. On each question, a fixed number of chunks is retrieved from every document
    independently, merged, and sent to the Groq API to generate the final answer.
@@ -29,6 +29,7 @@ ai-doc-qa-assistant/
 ├── styles.py                    # Shared dark theme CSS
 ├── rag_pipeline.py              # RAG logic: loading, chunking, embeddings, retrieval, generation
 ├── requirements.txt             # Python dependencies
+├── runtime.txt                  # Pins Python version for Streamlit Cloud
 ├── .gitignore                   # Keeps .env and secrets out of version control
 ├── .env.example                  # Template for local API key config
 ├── .streamlit/
@@ -84,6 +85,10 @@ repository.
 - Scanned/image-only PDFs are not OCR'd - text must be extractable.
 - Processing a new batch of documents replaces the current session's index.
 - Free Groq usage has rate limits; if you hit them, wait briefly and retry.
+- `runtime.txt` pins Python to 3.11 for deployment. Some dependencies (notably Pillow,
+  a transitive Streamlit dependency) don't yet ship prebuilt wheels for very new Python
+  versions, which causes cloud builds to fail trying to compile from source. Don't
+  remove this file when deploying.
 
 ## Possible next steps
 
