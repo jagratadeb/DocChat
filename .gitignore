@@ -23,4 +23,4 @@ Thumbs.db
 .streamlit/cache/
 
 # Deployment
-DEPLOYMENT.md
+DEPLOYMENTS.md
