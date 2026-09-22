@@ -104,7 +104,14 @@ Alternatively, create a local `.env` file containing:
 
 ```dotenv
 GROQ_API_KEY=your_groq_api_key
+DOCCHAT_LINKEDIN_URL=https://www.linkedin.com/in/your-profile
+DOCCHAT_GITHUB_URL=https://github.com/your-username
+DOCCHAT_X_URL=https://x.com/your-username
+DOCCHAT_BLUESKY_URL=https://bsky.app/profile/your-handle
 ```
+
+The social profile URLs are optional. Any configured links appear in the responsive
+DocChat header on the Chat and Architecture pages.
 
 The app loads this file with `python-dotenv`. There is no committed `.env.example` in
 this repository, so do not copy one from the README; create `.env` manually or enter

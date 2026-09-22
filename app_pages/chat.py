@@ -8,7 +8,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-from styles import inject_base_styles
+from styles import inject_app_footer, inject_app_header, inject_base_styles
 from rag_pipeline import (
     load_documents,
     build_vectorstores,
@@ -21,6 +21,7 @@ from rag_pipeline import (
 
 load_dotenv()
 inject_base_styles()
+inject_app_header()
 
 
 def get_groq_api_key():
@@ -42,9 +43,14 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "doc_names" not in st.session_state:
     st.session_state.doc_names = []
+if "num_chunks" not in st.session_state:
+    st.session_state.num_chunks = 0
+if "processing_complete" not in st.session_state:
+    st.session_state.processing_complete = False
 
 # ---------------------------------------------------------------------------
-# Sidebar — documents only, no navigation here
+# Sidebar — session and file details. Uploading stays in the main workspace so
+# the primary action remains available on narrow screens.
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
@@ -55,54 +61,31 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown('<div class="sidebar-kicker">Session</div>', unsafe_allow_html=True)
     if not GROQ_API_KEY:
         manual_key = st.text_input("Groq API key", type="password", placeholder="gsk_...")
         if manual_key:
             GROQ_API_KEY = manual_key
-        st.caption("Get a free key at console.groq.com")
-
-    st.markdown("**Documents**")
-    uploaded_files = st.file_uploader(
-        f"Up to {MAX_FILES} files, PDF / TXT / MD",
-        type=["pdf", "txt", "md"],
-        accept_multiple_files=True,
-        label_visibility="collapsed",
-    )
-
-    if uploaded_files and len(uploaded_files) > MAX_FILES:
-        st.error(f"Please select at most {MAX_FILES} files (you selected {len(uploaded_files)}).")
-    elif uploaded_files and st.button("Process documents", use_container_width=True, type="primary"):
-        if not GROQ_API_KEY:
-            st.error("Please add a Groq API key first.")
-        else:
-            with st.spinner(f"Indexing {len(uploaded_files)} file(s)..."):
-                try:
-                    documents = load_documents(uploaded_files)
-                    vectorstores, num_chunks = build_vectorstores(documents)
-                    llm = build_llm(GROQ_API_KEY)
-
-                    st.session_state.vectorstores = vectorstores
-                    st.session_state.llm = llm
-                    st.session_state.doc_names = [f.name for f in uploaded_files]
-                    st.session_state.chat_history = []
-
-                    st.toast(f"Indexed {num_chunks} chunks across {len(uploaded_files)} file(s).")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Could not process those files: {e}")
+        st.caption("Required to generate answers.")
 
     if st.session_state.doc_names:
-        st.markdown("**Active**")
-        chips = "".join(f'<span class="doc-chip">{name}</span>' for name in st.session_state.doc_names)
-        st.markdown(chips, unsafe_allow_html=True)
-        st.caption(f"Up to {CHUNKS_PER_SOURCE} excerpts retrieved per document, per question.")
+        st.markdown('<div class="sidebar-kicker">Indexed files</div>', unsafe_allow_html=True)
+        st.markdown(f"<div class='metric-grid'><div class='metric'><strong>{len(st.session_state.doc_names)}</strong><span>files</span></div><div class='metric'><strong>{st.session_state.num_chunks}</strong><span>chunks</span></div></div>", unsafe_allow_html=True)
+        for name in st.session_state.doc_names:
+            st.markdown(f"<div class='doc-chip'>{name}</div>", unsafe_allow_html=True)
+        st.caption(f"Retrieval limit: {CHUNKS_PER_SOURCE} excerpts per file, {MAX_FILES * CHUNKS_PER_SOURCE} maximum.")
         st.write("")
         if st.button("Clear session", use_container_width=True):
             st.session_state.vectorstores = None
             st.session_state.llm = None
             st.session_state.doc_names = []
+            st.session_state.num_chunks = 0
             st.session_state.chat_history = []
+            st.session_state.processing_complete = False
             st.rerun()
+    else:
+        st.markdown('<div class="sidebar-kicker">Indexed files</div>', unsafe_allow_html=True)
+        st.caption("No files indexed. Add documents in the workspace to begin.")
 
 # ---------------------------------------------------------------------------
 # Main area
@@ -114,6 +97,50 @@ st.markdown("""
     <p>Upload up to five files and get answers grounded in their actual content, with sources shown for every response.</p>
 </div>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<div class="upload-panel">
+    <h3>Add documents</h3>
+    <p>Choose up to five PDF, TXT, or Markdown files. They stay in this session only.</p>
+</div>
+""", unsafe_allow_html=True)
+
+uploaded_files = st.file_uploader(
+    "Documents",
+    type=["pdf", "txt", "md"],
+    accept_multiple_files=True,
+    label_visibility="collapsed",
+)
+
+if uploaded_files and len(uploaded_files) > MAX_FILES:
+    st.error(f"Please select at most {MAX_FILES} files (you selected {len(uploaded_files)}).")
+elif uploaded_files and st.button("Process documents", use_container_width=True, type="primary"):
+    if not GROQ_API_KEY:
+        st.error("Please add a Groq API key in the side panel first.")
+    else:
+        with st.spinner(f"Indexing {len(uploaded_files)} file(s)..."):
+            try:
+                documents = load_documents(uploaded_files)
+                vectorstores, num_chunks = build_vectorstores(documents)
+                llm = build_llm(GROQ_API_KEY)
+
+                st.session_state.vectorstores = vectorstores
+                st.session_state.llm = llm
+                st.session_state.doc_names = [f.name for f in uploaded_files]
+                st.session_state.num_chunks = num_chunks
+                st.session_state.chat_history = []
+                st.session_state.processing_complete = True
+
+                st.toast(f"Indexed {num_chunks} chunks across {len(uploaded_files)} file(s).")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Could not process those files: {e}")
+
+if st.session_state.processing_complete and st.session_state.llm:
+    st.markdown(
+        '<div class="processing-complete"><strong>Documents are ready.</strong> You can chat now.</div>',
+        unsafe_allow_html=True,
+    )
 
 if not st.session_state.llm:
     st.markdown("""
@@ -155,3 +182,5 @@ else:
                     st.session_state.chat_history.append((question, answer, sources))
                 except Exception as e:
                     st.error(f"Something went wrong: {e}")
+
+inject_app_footer()

@@ -11,7 +11,7 @@ import streamlit as st
 st.set_page_config(
     page_title="DocChat",
     page_icon=None,
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded",
 )
 

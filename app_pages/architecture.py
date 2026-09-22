@@ -7,9 +7,10 @@ quality across multiple documents.
 """
 
 import streamlit as st
-from styles import inject_base_styles
+from styles import inject_app_footer, inject_app_header, inject_base_styles
 
 inject_base_styles()
+inject_app_header()
 
 st.markdown("""
 <div class="hero">
@@ -18,59 +19,43 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown('<div class="architecture-image">', unsafe_allow_html=True)
+st.image("docchat_architecture_detailed.png", caption="Indexing and per-question retrieval flow")
+st.markdown('</div>', unsafe_allow_html=True)
+
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.subheader("End-to-end pipeline")
+st.subheader("Runtime pipeline")
 st.markdown("""
-<div class="stage"><b>1. Upload</b><br>Up to five PDF or text files are uploaded. Each file is parsed into
-raw text and tagged with its filename as metadata, so every downstream chunk can always
-be traced back to its source document.</div>
-
-<div class="stage"><b>2. Chunking</b><br>Each document's text is split into overlapping chunks
-(1000 characters, 250-character overlap) using a recursive character splitter. The overlap
-is intentionally generous so a heading and the paragraph that follows it are unlikely to be
-separated into different chunks - a fix for exactly the kind of "Summary" heading vs. content
-gap that can otherwise cause a real answer to go unretrieved.</div>
-
-<div class="stage"><b>3. Embedding</b><br>Every chunk is converted into a numerical vector using a
-HuggingFace sentence-transformer model (all-MiniLM-L6-v2), which runs locally in the
-app's own process. No embedding data is sent to any external API - this step is free and
-has no rate limit.</div>
-
-<div class="stage"><b>4. Indexing</b><br>Instead of one merged vector index across all documents,
-DocChat builds a separate FAISS index per uploaded file. This is the key design decision
-behind multi-document accuracy (see below).</div>
-
-<div class="stage"><b>5. Retrieval</b><br>When a question is asked, DocChat runs a similarity
-search against every document's index independently, then merges and ranks the results
-before building the final prompt.</div>
-
-<div class="stage"><b>6. Generation</b><br>The retrieved excerpts, labeled by source file, are
-assembled into a single prompt and sent to the Groq API, which returns a natural-language
-answer grounded only in that retrieved context.</div>
+<div class="technical-table"><table>
+<tr><th>Stage</th><th>Implementation</th><th>Output / contract</th></tr>
+<tr><td>Ingestion</td><td><code>PyPDFLoader</code> or <code>TextLoader</code></td><td>LangChain documents with <code>source_file</code> metadata</td></tr>
+<tr><td>Chunking</td><td><code>RecursiveCharacterTextSplitter</code>, 1,000 chars / 250 overlap</td><td>Overlapping chunks that preserve local context</td></tr>
+<tr><td>Embedding</td><td><code>all-MiniLM-L6-v2</code> via Hugging Face, local process</td><td>Dense vectors; no embedding API request</td></tr>
+<tr><td>Indexing</td><td>One FAISS index per source file</td><td><code>dict[str, FAISS]</code>, isolated retrieval namespaces</td></tr>
+<tr><td>Retrieval</td><td>Similarity search against every index, <code>k=3</code> per file</td><td>At most 15 ranked excerpts for five files</td></tr>
+<tr><td>Generation</td><td>Groq <code>openai/gpt-oss-120b</code>, temperature <code>0.1</code></td><td>Answer constrained to labeled retrieved context</td></tr>
+</table></div>
 """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-st.image(
-  "docchat_architecture_detailed.png",
-  caption="DocChat indexing and per-question retrieval flow",
-  use_column_width=True,
-)
+inject_app_footer()
 
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.subheader("What the Groq API is doing")
+st.subheader("Design decisions and boundaries")
 st.markdown("""
-Groq does not perform retrieval, embedding, or indexing in this system - all of that
-happens locally, for free, before Groq is ever called. Groq's only job is the final
-generation step: given a question and a set of retrieved excerpts, produce a coherent,
-natural-language answer.
+The application has two distinct execution boundaries. Ingestion, chunking, embedding,
+and FAISS indexing run locally in the Streamlit process. Only the final question plus
+the capped set of retrieved excerpts is sent to Groq for generation. Groq therefore does
+not choose documents or retrieve vectors; it receives a prepared context and produces
+the answer.
 """)
 st.markdown("""
-| Reason | Detail |
+| Constraint | Implementation |
 |---|---|
-| Speed | Groq runs open-weight models on custom inference hardware, returning answers in a fraction of a second even for large contexts. |
-| Free tier | No cost for moderate usage, matching this project's zero-budget deployment goal. |
-| No local GPU needed | Generation would otherwise require a GPU-hosted model; Groq removes that requirement entirely. |
-| Model choice | Groq hosts several open-weight models that can be swapped by changing one config value. |
+| Retrieval fairness | Per-file indexes guarantee every uploaded source can contribute excerpts. |
+| Context ceiling | Five files x three excerpts = 15 excerpts maximum per request. |
+| Grounding | The prompt requires the model to answer only from retrieved context. |
+| Latency and cost | Local embeddings avoid embedding API calls; Groq handles generation only. |
 """)
 st.markdown('</div>', unsafe_allow_html=True)
 
