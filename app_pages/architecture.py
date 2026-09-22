@@ -50,6 +50,12 @@ answer grounded only in that retrieved context.</div>
 """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
+st.image(
+  "docchat_architecture_detailed.png",
+  caption="DocChat indexing and per-question retrieval flow",
+  use_column_width=True,
+)
+
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
 st.subheader("What the Groq API is doing")
 st.markdown("""
