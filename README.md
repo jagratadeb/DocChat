@@ -56,8 +56,6 @@ ai-doc-qa-assistant/
 ├── app_pages/
 │   ├── chat.py                    # Upload, indexing, chat, and source display UI
 │   └── architecture.py            # Active Architecture page and system diagram
-├── pages/
-│   └── 1_Architecture.py          # Legacy page not used by app.py navigation
 ├── rag_pipeline.py                # Loading, chunking, embedding, retrieval, and LLM calls
 ├── styles.py                      # Shared dark-theme CSS
 ├── requirements.txt               # Python dependencies
