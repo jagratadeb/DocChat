@@ -29,6 +29,19 @@ BASE_CSS = """
         background: rgba(6, 8, 13, 0.85);
         backdrop-filter: blur(8px);
         border-bottom: 1px solid #1c212b;
+        position: relative;
+    }
+    header[data-testid="stHeader"]::after {
+        color: #f5f6f8;
+        content: "DocChat";
+        font-size: 1rem;
+        font-weight: 800;
+        left: 4rem;
+        letter-spacing: 0.01em;
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     html, body, [class*="css"] {
@@ -89,6 +102,136 @@ BASE_CSS = """
         font-weight: 800;
         letter-spacing: 0.01em;
         white-space: nowrap;
+    }
+    .landing-grid {
+        align-items: center;
+        display: grid;
+        gap: clamp(2.5rem, 7vw, 8rem);
+        grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+    }
+    .landing-hero {
+        max-width: 58rem;
+        padding: 2.4rem 0 2rem;
+    }
+    .landing-eyebrow {
+        color: #34d399;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        margin-bottom: 1.2rem;
+    }
+    .landing-hero h1 {
+        color: #f5f6f8;
+        font-size: clamp(3.2rem, 8vw, 6.5rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 0.98;
+        margin: 0;
+        max-width: 12ch;
+    }
+    .landing-hero .accent {
+        background: linear-gradient(90deg, #34d399, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .landing-lede {
+        color: #a5adbb;
+        font-size: clamp(1rem, 1.8vw, 1.2rem);
+        line-height: 1.6;
+        margin: 1.6rem 0 0;
+        max-width: 35rem;
+    }
+    .landing-preview {
+        background: linear-gradient(145deg, rgba(16, 25, 31, 0.9), rgba(10, 14, 20, 0.92));
+        border: 1px solid #263744;
+        border-radius: 12px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+        padding: clamp(1.2rem, 2.5vw, 2rem);
+        transform: translateY(1rem);
+    }
+    .preview-head,
+    .preview-foot {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+    .preview-kicker,
+    .preview-live,
+    .preview-foot {
+        color: #7f899b;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+    }
+    .preview-live { color: #34d399; }
+    .preview-live i {
+        background: #34d399;
+        border-radius: 50%;
+        display: inline-block;
+        height: 0.4rem;
+        margin-right: 0.3rem;
+        width: 0.4rem;
+    }
+    .preview-title {
+        color: #f5f6f8;
+        font-size: clamp(1.25rem, 2.5vw, 1.8rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+        margin: 3.5rem 0 1.8rem;
+        max-width: 10ch;
+    }
+    .preview-files { border-top: 1px solid #263744; }
+    .preview-row {
+        align-items: center;
+        border-bottom: 1px solid #1d2932;
+        color: #bdc5ce;
+        display: grid;
+        font-size: 0.75rem;
+        gap: 0.55rem;
+        grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+        padding: 0.75rem 0;
+    }
+    .preview-row span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-row b { color: #657384; font-size: 0.65rem; font-weight: 500; }
+    .file-icon {
+        border-radius: 3px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.55rem;
+        font-weight: 700;
+        padding: 0.25rem 0.2rem;
+        text-align: center;
+    }
+    .file-icon.pdf { background: #3a2428; color: #fb7185; }
+    .file-icon.txt { background: #17343a; color: #5eead4; }
+    .file-icon.md { background: #273348; color: #93c5fd; }
+    .preview-foot { margin-top: 1.5rem; }
+    .preview-foot strong { color: #34d399; font-size: 1.2rem; letter-spacing: 0; }
+    .landing-features {
+        border-top: 1px solid #1c212b;
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 3.5rem;
+        padding-top: 1.3rem;
+    }
+    .landing-features article { padding-right: 1.5rem; }
+    .feature-number {
+        color: #34d399;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        margin-bottom: 1.3rem;
+    }
+    .landing-features h3 {
+        color: #f5f6f8;
+        font-size: 1rem;
+        margin: 0 0 0.4rem;
+    }
+    .landing-features p {
+        color: #7f899b;
+        font-size: 0.86rem;
+        line-height: 1.55;
+        margin: 0;
     }
     .social-links {
         display: flex;
@@ -293,10 +436,15 @@ BASE_CSS = """
         background: linear-gradient(90deg, #10b981, #3b82f6);
         border: none;
         color: #06080d;
+        font-size: 0.95rem;
+        font-weight: 900;
+        min-height: 3.1rem;
+        padding: 0.8rem 1.35rem;
     }
     .stButton>button[kind="primary"]:hover {
         opacity: 0.9;
         color: #06080d;
+        transform: scale(1.1);
     }
 
     section[data-testid="stFileUploaderDropzone"] {
@@ -320,10 +468,35 @@ BASE_CSS = """
         background: #0b0e14;
         border: 1px solid #252d3b;
         border-radius: 12px;
+        margin: 0 auto 1.2rem;
+        max-width: 48rem;
+        overflow: hidden;
         padding: 0.75rem;
-        margin-bottom: 1.2rem;
     }
-    .architecture-image img { max-width: 100%; height: auto; }
+    .architecture-image img { display: block; height: auto; max-width: 100%; }
+    .architecture-flow {
+        border-top: 0.5px solid rgba(38, 55, 68, 0.7);
+    }
+    .architecture-flow > div {
+        align-items: start;
+        border-bottom: 0.5px solid rgba(38, 55, 68, 0.7);
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 8rem minmax(0, 1fr);
+        padding: 0.9rem 0;
+    }
+    .architecture-flow b {
+        color: #34d399;
+        display: block;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    .architecture-flow span {
+        color: #8b93a3;
+        display: block;
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
     .technical-table { overflow-x: auto; max-width: 100%; }
     .stage {
         border-left: 2px solid #34d399;
@@ -354,6 +527,15 @@ BASE_CSS = """
         .upload-panel { padding: 0.85rem; }
         .app-footer { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
         .footer-links { gap: 0.4rem; }
+        header[data-testid="stHeader"]::after { left: 3rem; }
+        .landing-grid { display: block; }
+        .landing-hero { padding: 2rem 0 1.5rem; }
+        .landing-hero h1 { font-size: 3.1rem; }
+        .landing-preview { margin: 1rem 0 2rem; transform: none; }
+        .preview-title { margin-top: 2.5rem; }
+        .landing-features { grid-template-columns: 1fr; margin-top: 4rem; }
+        .landing-features article { padding-bottom: 0.7rem; padding-right: 0; }
+        .architecture-flow > div { grid-template-columns: 1fr; gap: 0.35rem; }
         table { min-width: 34rem; }
     }
     @media (min-width: 641px) {

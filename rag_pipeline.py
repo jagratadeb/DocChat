@@ -204,7 +204,7 @@ def retrieve_context(vectorstores: dict, question: str, k_per_source: int = CHUN
 def format_source_label(doc, index):
     """Build a human-readable label for a retrieved source chunk, e.g.
     'Excerpt 1 - report.pdf (page 3)'."""
-    label = f"Excerpt {index}"
+    label = f"Part {index}"
     source_file = doc.metadata.get("source_file")
     if source_file:
         label += f" - {source_file}"
