@@ -7,7 +7,7 @@ information is available.
 
 ## Version
 
-Current release: **v1.2.0**
+Current release: **v1.2.2**
 
 ## What DocChat includes
 
@@ -166,7 +166,7 @@ http://localhost:8501
 
 ## Deploy on Streamlit Community Cloud
 
-The full deployment guide is in [DEPLOYMENTS.md](DEPLOYMENTS.md). The short version:
+To deploy on Streamlit Community Cloud:
 
 1. Push the repository to GitHub without `.env` or `.streamlit/secrets.toml`.
 2. Create a new Streamlit Community Cloud app.
@@ -206,7 +206,6 @@ ai-doc-qa-assistant/
 ├── rag_pipeline.py                     # Loading, search, and answer generation
 ├── styles.py                           # Shared CSS and header/footer styling
 ├── SECURITY_AND_PRIVACY.md             # Detailed data-handling documentation
-├── DEPLOYMENTS.md                      # Streamlit Community Cloud guide
 ├── requirements.txt                    # Python dependencies
 ├── runtime.txt                         # Deployment Python version
 ├── .streamlit/config.toml              # Streamlit configuration
@@ -234,7 +233,6 @@ questions in the same running process can reuse that model.
 ### The deployment build fails
 
 Confirm that `runtime.txt` is present and that the deployment is using Python 3.11.
-See [DEPLOYMENTS.md](DEPLOYMENTS.md) for platform-specific troubleshooting.
 
 ### Answers are not found in the files
 
