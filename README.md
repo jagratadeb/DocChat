@@ -7,7 +7,7 @@ information is available.
 
 ## Version
 
-Current release: **v1.2.0**
+Current release: **v1.2.2**
 
 ## What DocChat includes
 
